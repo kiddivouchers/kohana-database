@@ -37,9 +37,6 @@ class Kohana_Database_PDO extends Database {
 			'persistent' => FALSE,
 		));
 
-		// Clear the connection parameters for security
-		unset($this->_config['connection']);
-
 		// Force PDO to use exceptions for all errors
 		$options[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
 
