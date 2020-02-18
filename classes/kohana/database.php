@@ -75,7 +75,10 @@ abstract class Kohana_Database {
 			$driver = 'Database_'.ucfirst($config['type']);
 
 			// Create the database connection instance
-			new $driver($name, $config);
+			$driver = new $driver($name, $config);
+
+			// Store the database instance
+			Database::$instances[$name] = $driver;
 		}
 
 		return Database::$instances[$name];
@@ -117,9 +120,6 @@ abstract class Kohana_Database {
 		{
 			$this->_config['table_prefix'] = '';
 		}
-
-		// Store the database instance
-		Database::$instances[$name] = $this;
 	}
 
 	/**
@@ -500,9 +500,13 @@ abstract class Kohana_Database {
 	 */
 	public function quote_column($column)
 	{
+		// Identifiers are escaped by repeating them
+		$escaped_identifier = $this->_identifier.$this->_identifier;
+
 		if (is_array($column))
 		{
 			list($column, $alias) = $column;
+			$alias = str_replace($this->_identifier, $escaped_identifier, $alias);
 		}
 
 		if ($column instanceof Database_Query)
@@ -520,14 +524,11 @@ abstract class Kohana_Database {
 			// Convert to a string
 			$column = (string) $column;
 
+			$column = str_replace($this->_identifier, $escaped_identifier, $column);
+
 			if ($column === '*')
 			{
 				return $column;
-			}
-			elseif (strpos($column, '"') !== FALSE)
-			{
-				// Quote the column in FUNC("column") identifiers
-				$column = preg_replace('/"(.+?)"/e', '$this->quote_column("$1")', $column);
 			}
 			elseif (strpos($column, '.') !== FALSE)
 			{
@@ -584,9 +585,14 @@ abstract class Kohana_Database {
 	 */
 	public function quote_table($table)
 	{
+		
+		// Identifiers are escaped by repeating them
+		$escaped_identifier = $this->_identifier.$this->_identifier;
+
 		if (is_array($table))
 		{
 			list($table, $alias) = $table;
+			$alias = str_replace($this->_identifier, $escaped_identifier, $alias);
 		}
 
 		if ($table instanceof Database_Query)
@@ -603,6 +609,8 @@ abstract class Kohana_Database {
 		{
 			// Convert to a string
 			$table = (string) $table;
+
+			$table = str_replace($this->_identifier, $escaped_identifier, $table);
 
 			if (strpos($table, '.') !== FALSE)
 			{
@@ -654,9 +662,13 @@ abstract class Kohana_Database {
 	 */
 	public function quote_identifier($value)
 	{
+		// Identifiers are escaped by repeating them
+		$escaped_identifier = $this->_identifier.$this->_identifier;
+
 		if (is_array($value))
 		{
 			list($value, $alias) = $value;
+			$alias = str_replace($this->_identifier, $escaped_identifier, $alias);
 		}
 
 		if ($value instanceof Database_Query)
@@ -673,6 +685,8 @@ abstract class Kohana_Database {
 		{
 			// Convert to a string
 			$value = (string) $value;
+
+			$value = str_replace($this->_identifier, $escaped_identifier, $value);
 
 			if (strpos($value, '.') !== FALSE)
 			{
