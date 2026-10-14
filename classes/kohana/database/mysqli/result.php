@@ -22,7 +22,7 @@ class Kohana_Database_MySQLi_Result extends Database_Result {
 
 	public function __destruct()
 	{
-		if (is_resource($this->_result))
+		if ($this->_result instanceof mysqli_result)
 		{
 			$this->_result->free();
 		}
