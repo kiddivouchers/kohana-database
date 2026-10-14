@@ -20,7 +20,7 @@ class Kohana_Config_Database_Reader implements Kohana_Config_Reader
 	 *
 	 * @param array Configuration for the reader
 	 */
-	public function __construct(array $config = NULL)
+	public function __construct(?array $config = NULL)
 	{
 		if (isset($config['instance']))
 		{
@@ -48,7 +48,7 @@ class Kohana_Config_Database_Reader implements Kohana_Config_Reader
 	public function load($group)
 	{
 		/**
-		 * Prevents the catch-22 scenario where the database config reader attempts to load the 
+		 * Prevents the catch-22 scenario where the database config reader attempts to load the
 		 * database connections details from the database.
 		 *
 		 * @link http://dev.kohanaframework.org/issues/4316

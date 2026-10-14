@@ -167,7 +167,7 @@ class Kohana_Database_MySQL extends Database {
 		}
 	}
 
-	public function query($type, $sql, $as_object = FALSE, array $params = NULL)
+	public function query($type, $sql, $as_object = FALSE, ?array $params = NULL)
 	{
 		// Make sure the database is connected
 		$this->_connection or $this->connect();
