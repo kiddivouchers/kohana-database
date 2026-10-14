@@ -11,7 +11,7 @@ The database configuration file contains an array of configuration groups. The s
         'charset'      => string CHARACTER_SET,
         'profiling'    => boolean QUERY_PROFILING,
     ),
-	
+
 Understanding each of these settings is important.
 
 INSTANCE_NAME
@@ -37,7 +37,7 @@ The example file below shows 2 MySQL connections, one local and one remote.
     (
         'default' => array
         (
-            'type'       => 'mysql',
+            'type'       => 'mysqli',
             'connection' => array(
                 'hostname'   => 'localhost',
                 'username'   => 'dbuser',
@@ -50,7 +50,7 @@ The example file below shows 2 MySQL connections, one local and one remote.
             'profiling'    => TRUE,
         ),
         'remote' => array(
-            'type'       => 'mysql',
+            'type'       => 'mysqli',
             'connection' => array(
                 'hostname'   => '55.55.55.55',
                 'username'   => 'remote_user',
@@ -70,16 +70,16 @@ Each configuration group is referred to as a database instance. Each instance ca
 
 	// This would connect to the database defined as 'default'
     $default = Database::instance();
-	
+
 	// This would connect to the database defined as 'remote'
     $remote  = Database::instance('remote');
 
 To disconnect the database, simply destroy the object:
 
     unset($default)
-	
+
 	// Or
-	
+
 	unset(Database::$instances['default']);
 
 If you want to disconnect all of the database instances at once:

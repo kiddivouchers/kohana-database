@@ -24,6 +24,11 @@ class Kohana_Database_MySQL extends Database {
 
 	public function connect()
 	{
+		if (PHP_VERSION_ID >= 70000)
+		{
+			throw new RuntimeException('The `mysql` driver requires PHP 5 and the `mysql` extension. Use `mysqli` or `PDO_MySQL` instead.');
+		}
+
 		if ($this->_connection)
 			return;
 
