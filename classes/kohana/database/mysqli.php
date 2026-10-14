@@ -95,7 +95,7 @@ class Kohana_Database_MySQLi extends Database {
 				$variables[] = 'SESSION '.$var.' = '.$this->quote($val);
 			}
 
-			$this->_connection->query('SET '.implode(', ', $variables));
+			$this->_query('SET '.implode(', ', $variables));
 		}
 	}
 
@@ -135,17 +135,39 @@ class Kohana_Database_MySQLi extends Database {
 		if (Database_MySQLi::$_set_names === TRUE)
 		{
 			// PHP is compiled against MySQL 4.x
-			$status = (bool) $this->_connection->query('SET NAMES '.$this->quote($charset));
+			$status = (bool) $this->_query('SET NAMES '.$this->quote($charset));
 		}
 		else
 		{
 			// PHP is compiled against MySQL 5.x
-			$status = $this->_connection->set_charset($charset);
+			try
+			{
+				$status = $this->_connection->set_charset($charset);
+			}
+			catch (mysqli_sql_exception $e)
+			{
+				throw new Database_Exception(':error', [':error' => $e->getMessage()], $e->getCode());
+			}
 		}
 
 		if ($status === FALSE)
 		{
 			throw new Database_Exception(':error', [':error' => $this->_connection->error], $this->_connection->errno);
+		}
+	}
+
+	protected function _query($sql)
+	{
+		try
+		{
+			return $this->_connection->query($sql);
+		}
+		catch (mysqli_sql_exception $e)
+		{
+			throw new Database_Exception(':error [ :query ]', [
+				':error' => $e->getMessage(),
+				':query' => $sql
+			], $e->getCode());
 		}
 	}
 
@@ -161,7 +183,22 @@ class Kohana_Database_MySQLi extends Database {
 		}
 
 		// Execute the query
-		if (($result = $this->_connection->query($sql)) === FALSE)
+		try
+		{
+			$result = $this->_query($sql);
+		}
+		catch (Database_Exception $e)
+		{
+			if (isset($benchmark))
+			{
+				// This benchmark is worthless
+				Profiler::delete($benchmark);
+			}
+
+			throw $e;
+		}
+
+		if ($result === FALSE)
 		{
 			if (isset($benchmark))
 			{
@@ -263,14 +300,14 @@ class Kohana_Database_MySQLi extends Database {
 		// Make sure the database is connected
 		$this->_connection or $this->connect();
 
-		if ($mode AND ! $this->_connection->query("SET TRANSACTION ISOLATION LEVEL $mode"))
+		if ($mode AND ! $this->_query("SET TRANSACTION ISOLATION LEVEL $mode"))
 		{
 			throw new Database_Exception(':error', [
 				':error' => $this->_connection->error
 			], $this->_connection->errno);
 		}
 
-		return (bool) $this->_connection->query('START TRANSACTION');
+		return (bool) $this->_query('START TRANSACTION');
 	}
 
 	/**
@@ -283,7 +320,7 @@ class Kohana_Database_MySQLi extends Database {
 		// Make sure the database is connected
 		$this->_connection or $this->connect();
 
-		return (bool) $this->_connection->query('COMMIT');
+		return (bool) $this->_query('COMMIT');
 	}
 
 	/**
@@ -296,7 +333,7 @@ class Kohana_Database_MySQLi extends Database {
 		// Make sure the database is connected
 		$this->_connection or $this->connect();
 
-		return (bool) $this->_connection->query('ROLLBACK');
+		return (bool) $this->_query('ROLLBACK');
 	}
 
 	public function list_tables($like = NULL)
