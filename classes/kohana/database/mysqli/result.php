@@ -28,6 +28,8 @@ class Kohana_Database_MySQLi_Result extends Database_Result {
 		}
 	}
 
+	// SeekableIterator::seek returns void, but this implementation returns a bool.
+	#[\ReturnTypeWillChange]
 	public function seek($offset)
 	{
 		if ($this->offsetExists($offset) AND $this->_result->data_seek($offset))
@@ -43,7 +45,7 @@ class Kohana_Database_MySQLi_Result extends Database_Result {
 		}
 	}
 
-	public function current()
+	public function current(): mixed
 	{
 		if ($this->_current_row !== $this->_internal_row AND ! $this->seek($this->_current_row))
 			return NULL;
