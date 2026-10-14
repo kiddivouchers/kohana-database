@@ -48,8 +48,14 @@ class Kohana_Database_PDO extends Database {
 
 		try
 		{
-			// Create a new PDO connection
-			$this->_connection = new PDO($dsn, $username, $password, $options);
+			$pdo_class = 'PDO';
+
+			if (class_exists('Pdo\\Sqlite') AND strpos($dsn, 'sqlite:') === 0)
+			{
+				$pdo_class = 'Pdo\\Sqlite';
+			}
+
+			$this->_connection = new $pdo_class($dsn, $username, $password, $options);
 		}
 		catch (PDOException $e)
 		{
@@ -83,6 +89,13 @@ class Kohana_Database_PDO extends Database {
 	{
 		$this->_connection or $this->connect();
 
+		if (method_exists($this->_connection, 'createAggregate'))
+		{
+			return $this->_connection->createAggregate(
+				$name, $step, $final, $arguments
+			);
+		}
+
 		return $this->_connection->sqliteCreateAggregate(
 			$name, $step, $final, $arguments
 		);
@@ -104,6 +117,13 @@ class Kohana_Database_PDO extends Database {
 	public function create_function($name, $callback, $arguments = -1)
 	{
 		$this->_connection or $this->connect();
+
+		if (method_exists($this->_connection, 'createFunction'))
+		{
+			return $this->_connection->createFunction(
+				$name, $callback, $arguments
+			);
+		}
 
 		return $this->_connection->sqliteCreateFunction(
 			$name, $callback, $arguments
