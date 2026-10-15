@@ -28,6 +28,8 @@ class Kohana_Database_Result_Cached extends Database_Result {
 		return $this;
 	}
 
+	// SeekableIterator::seek returns void, but this implementation returns a bool.
+	#[\ReturnTypeWillChange]
 	public function seek($offset)
 	{
 		if ($this->offsetExists($offset))
@@ -42,7 +44,7 @@ class Kohana_Database_Result_Cached extends Database_Result {
 		}
 	}
 
-	public function current()
+	public function current(): mixed
 	{
 		// Return an array of the row
 		return $this->valid() ? $this->_result[$this->_current_row] : NULL;

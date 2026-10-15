@@ -12,7 +12,7 @@ class Kohana_Database_MySQL_Result extends Database_Result {
 
 	protected $_internal_row = 0;
 
-	public function __construct($result, $sql, $as_object = FALSE, array $params = NULL)
+	public function __construct($result, $sql, $as_object = FALSE, ?array $params = NULL)
 	{
 		parent::__construct($result, $sql, $as_object, $params);
 
@@ -28,6 +28,8 @@ class Kohana_Database_MySQL_Result extends Database_Result {
 		}
 	}
 
+	// SeekableIterator::seek returns void, but this implementation returns a bool.
+	#[\ReturnTypeWillChange]
 	public function seek($offset)
 	{
 		if ($this->offsetExists($offset) AND mysql_data_seek($this->_result, $offset))
@@ -43,7 +45,7 @@ class Kohana_Database_MySQL_Result extends Database_Result {
 		}
 	}
 
-	public function current()
+	public function current(): mixed
 	{
 		if ($this->_current_row !== $this->_internal_row AND ! $this->seek($this->_current_row))
 			return NULL;

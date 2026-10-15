@@ -2,6 +2,9 @@
 	"name": "widerplan/kohana-database",
 	"description": "Fork of Kohana Database",
 	"license": "BSD-3-Clause",
+	"require": {
+		"php": "^8"
+	},
 	"replace": {
 		"kohana/database": "3.2.*"
 	},
